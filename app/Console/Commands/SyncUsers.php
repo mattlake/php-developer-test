@@ -2,10 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\DataTransferObjects\ApiUserData;
+use App\Actions\UserApiSyncAction;
+use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Http;
 
 class SyncUsers extends Command
 {
@@ -38,36 +37,18 @@ class SyncUsers extends Command
      *
      * @return int
      */
-    public function handle()
+    public function handle(UserApiSyncAction $action)
     {
-        // Fetch Users
-        $response = Http::get('https://reqres.in/api/users');
+        $this->info('Syncing APi users with DB');
 
-        if ($response->failed()) {
-            throw new \Exception('Could not contact API');
+        try {
+            $action->handle();
+        } catch (Exception) {
+            $this->error('Could not sync users, please check the logs for more details');
+            return 1;
         }
 
-        $users = array_map(function (array $user) {
-            return new ApiUserData(
-                $user['id'],
-                $user['email'],
-                $user['first_name'],
-                $user['last_name'],
-                $user['avatar'],
-                Hash::make('password-generator-here'),
-            );
-        }, json_decode($response->body(), true)['data']);
-
-        /**
-         * Using an upsert like this will only sotre the password on insertions as
-         * we don't want to update any existing passwords
-         */
-        \App\Models\User::upsert(
-            array_map(fn ($user) => $user->toArray(), $users),
-            'id',
-            ['id', 'email', 'first_name', 'last_name', 'avatar']
-        );
-
+        $this->info('Sync complete');
         return 0;
     }
 }
