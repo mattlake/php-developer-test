@@ -17,10 +17,10 @@ class UserApiSyncAction
         $this->userService = resolve(UserAPIService::class);
     }
 
-    public function handle(bool $allusers = false)
+    public function handle(bool $allUsers = false)
     {
         // Fetch users
-        $userData = $this->userService->fetchUsers($allusers);
+        $userData = $this->userService->fetchUsers($allUsers);
 
         /**
          * Using an upsert like this will only store the password on insertions as

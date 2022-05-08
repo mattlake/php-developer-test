@@ -13,14 +13,15 @@ class SyncUsers extends Command
      *
      * @var string
      */
-    protected $signature = 'sync:users';
+    protected $signature = 'sync:users
+                            {--all : Sync all users}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Sync the API users with the DB';
+    protected $description = 'Sync the API users with the DB (first page)';
 
     /**
      * Create a new command instance.
@@ -39,10 +40,12 @@ class SyncUsers extends Command
      */
     public function handle(UserApiSyncAction $action)
     {
-        $this->info('Syncing APi users with DB');
+        $this->hasOption('all') ?
+            $this->info('Syncing all users from the API to the DB')
+            : $this->info('Syncing first page of users from the API to the DB');
 
         try {
-            $action->handle();
+            $action->handle($this->option('all'));
         } catch (Exception) {
             $this->error('Could not sync users, please check the logs for more details');
             return 1;

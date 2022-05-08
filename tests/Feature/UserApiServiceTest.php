@@ -17,7 +17,7 @@ class UserApiServiceTest extends TestCase
             ['*' => MockApiData::validResponse()]
         );
 
-        $userApiService = new UserApiService();
+        $userApiService = new UserAPIService();
         $users = $userApiService->fetchUsers();
 
         $this->assertInstanceOf(Collection::class, $users);
@@ -31,7 +31,7 @@ class UserApiServiceTest extends TestCase
             ['*' => MockApiData::validResponse()]
         );
 
-        $userApiService = new UserApiService();
+        $userApiService = new UserAPIService();
         $userApiService->fetchUsers(true);
 
         Http::assertSent(fn ($request) => $request->url() === 'https://reqres.in/api/users?page=1&per_page=100');
@@ -47,7 +47,7 @@ class UserApiServiceTest extends TestCase
             ['*' => MockApiData::validResponse()]
         );
 
-        $userApiService = new UserApiService();
+        $userApiService = new UserAPIService();
         $users = $userApiService->fetchUsers(true);
 
         $this->assertInstanceOf(Collection::class, $users);
