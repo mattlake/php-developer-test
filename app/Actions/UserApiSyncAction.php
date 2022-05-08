@@ -13,21 +13,21 @@ class UserApiSyncAction
 
     public function __construct()
     {
-        // There are better ways to resolve this if the time allowed.
+        // There are better ways to resolve/inject this from the container, if the time allowed.
         $this->userService = resolve(UserAPIService::class);
     }
 
-    public function handle()
+    public function handle(bool $allusers = false)
     {
         // Fetch users
-        $userData = $this->userService->fetchUsers();
+        $userData = $this->userService->fetchUsers($allusers);
 
         /**
          * Using an upsert like this will only store the password on insertions as
          * we don't want to update any existing passwords
          */
         User::upsert(
-            array_map(fn ($user) => $user->toArray(), $userData),
+            array_map(fn ($user) => $user->toArray(), $userData->toArray()),
             'id',
             ['id', 'email', 'first_name', 'last_name', 'avatar']
         );
