@@ -4,40 +4,30 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
-use App\DataTransferObjects\ApiUserData;
 use App\Models\User;
-use Exception;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Http;
+use App\Services\UserAPIService;
 
 class UserApiSyncAction
 {
+    private UserAPIService $userService;
+
+    public function __construct()
+    {
+        // There are better ways to resolve this if the time allowed.
+        $this->userService = resolve(UserAPIService::class);
+    }
+
     public function handle()
     {
-        // Fetch Users
-        $response = Http::get('https://reqres.in/api/users');
-
-        if ($response->failed()) {
-            throw new Exception('Could not contact API');
-        }
-
-        $users = array_map(function (array $user) {
-            return new ApiUserData(
-                $user['id'],
-                $user['email'],
-                $user['first_name'],
-                $user['last_name'],
-                $user['avatar'],
-                Hash::make('password-generator-here'),
-            );
-        }, json_decode($response->body(), true)['data']);
+        // Fetch users
+        $userData = $this->userService->fetchUsers();
 
         /**
-         * Using an upsert like this will only sotre the password on insertions as
+         * Using an upsert like this will only store the password on insertions as
          * we don't want to update any existing passwords
          */
         User::upsert(
-            array_map(fn ($user) => $user->toArray(), $users),
+            array_map(fn ($user) => $user->toArray(), $userData),
             'id',
             ['id', 'email', 'first_name', 'last_name', 'avatar']
         );

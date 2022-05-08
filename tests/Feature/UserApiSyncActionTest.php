@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use App\Actions\UserApiSyncAction;
+use App\DataTransferObjects\ApiUserData;
 use App\Models\User;
+use App\Services\UserAPIService;
 use Exception;
 use Illuminate\Support\Facades\Http;
 use Tests\Fixtures\MockApiData;
@@ -45,5 +47,19 @@ class UserApiSyncActionTest extends TestCase
 
         $action = new UserApiSyncAction();
         $action->handle();
+    }
+
+    public function test_that_the_fetch_users_method_returns_an_array_of_ApiUserData_objects(): void
+    {
+        Http::fake(
+            ['*' => MockApiData::validResponse()]
+        );
+
+        $userApiService = new UserApiService();
+        $users = $userApiService->fetchUsers();
+
+        $this->assertIsArray($users);
+        $this->assertCount(3, $users);
+        $this->assertInstanceOf(ApiUserData::class, $users[0]);
     }
 }
