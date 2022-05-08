@@ -9,7 +9,7 @@ use App\Services\UserAPIService;
 
 class UserApiSyncAction
 {
-    private UserAPIService $userService;
+    private \App\Contracts\UserAPIService $userService;
 
     public function __construct()
     {

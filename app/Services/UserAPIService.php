@@ -9,7 +9,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 
-class UserAPIService
+class UserAPIService implements \App\Contracts\UserAPIService
 {
     const USERS_ENDPOINT = 'https://reqres.in/api/users';
 
